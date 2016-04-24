@@ -78,7 +78,7 @@ def extractor():
         f1.close()
         f2.close()
         f3.close()
-    #elif sentence_type == all:
+    # elif sentence_type == all:
     #    for phrase in phrases:
     #        print_phrase = False
     #        for sentence in sentences:
