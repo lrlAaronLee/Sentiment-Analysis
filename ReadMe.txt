@@ -1,6 +1,8 @@
-extractor.py:¶Ô¾ä×Ó½øÐÐ¼òµ¥µÄ´¦Àí£¬Éú³ÉÈý¸öÎÄ¼þ·Ö±ð´æ´¢ÑµÁ·¼¯¡¢ÑéÖ¤¼¯ºÍ²âÊÔ¼¯µÄ¾ä×Ó
-getm.py:Éú³ÉÈý¸öÎÄ¼þ´æ´¢ÓÃÊý×ÖÏòÁ¿±íÊ¾µÄÑµÁ·¼¯¡¢ÑéÖ¤¼¯ºÍ²âÊÔ¼¯£¬Éú³É´ÊÏòÁ¿index
-main.py:Ö÷º¯Êý£¬¶¨ÒåÍøÂçÒÔ¼°Ä£ÐÍÑµÁ·²¿·Ö
-models.py:¶¨ÒåÍøÂçËùÐèµÄ¸÷ÖÖ²ãµÄÀà
-creat.py:¸ù¾Ý¶¨ÒåµÄÍøÂç¼°models.pyÖÐ²ãµÄ¶¨ÒåÉú³ÉÍøÂç
-treatment.py:¶ÁÈëÊý¾Ý¼°È·¶¨ÍøÂçÖÐÊý¾ÝÖ®¼äµÄº¯Êý¹ØÏµ
+extractor.py:å¯¹å¥å­è¿›è¡Œç®€å•çš„å¤„ç†ï¼Œç”Ÿæˆä¸‰ä¸ªæ–‡ä»¶åˆ†åˆ«å­˜å‚¨è®­ç»ƒé›†ã€éªŒè¯é›†å’Œæµ‹è¯•é›†çš„å¥å­
+getm.py:ç”Ÿæˆä¸‰ä¸ªæ–‡ä»¶å­˜å‚¨ç”¨æ•°å­—å‘é‡è¡¨ç¤ºçš„è®­ç»ƒé›†ã€éªŒè¯é›†å’Œæµ‹è¯•é›†ï¼Œç”Ÿæˆè¯å‘é‡index
+main.py:ä¸»å‡½æ•°ï¼Œå®šä¹‰ç½‘ç»œä»¥åŠæ¨¡åž‹è®­ç»ƒéƒ¨åˆ†
+models.py:å®šä¹‰ç½‘ç»œæ‰€éœ€çš„å„ç§å±‚çš„ç±»
+creat.py:æ ¹æ®å®šä¹‰çš„ç½‘ç»œåŠmodels.pyä¸­å±‚çš„å®šä¹‰ç”Ÿæˆç½‘ç»œ
+treatment.py:è¯»å…¥æ•°æ®åŠç¡®å®šç½‘ç»œä¸­æ•°æ®ä¹‹é—´çš„å‡½æ•°å…³ç³»
+è¯å‘é‡ï¼š Common Crawl (840B tokens, 2.2M vocab, cased, 300d vectors, 2.03 GB download): glove.840B.300d.zip 
+        http://nlp.stanford.edu/projects/glove/ 
