@@ -4,15 +4,14 @@ from models import *
 
 
 class treatment(object):
-    def __init__(self, batch_size, learning_rate):
+    def __init__(self, batch_size):
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
         return
 
     def load_data(self, path, size):
         countlen = -1
-        dataset_x = np.zeros(size * 60 * 300, np.float)
-        dataset_x = dataset_x.reshape((size, 18000))
+        dataset_x = np.empty(size * 60)
+        dataset_x = dataset_x.reshape((size, 60))
         dataset_y = np.zeros(size)
         f = open(path, "r")
         while True:
@@ -20,7 +19,7 @@ class treatment(object):
             if line == "":
                 break
             countlen += 1
-            line_parts = line.strip().split("\t")
+            line_parts = line.strip().split(" ")
             y = float(line_parts[0])
             if 0 <= y <= 0.2:
                 dataset_y[countlen] = 0
@@ -32,17 +31,13 @@ class treatment(object):
                 dataset_y[countlen] = 3
             else:
                 dataset_y[countlen] = 4
-            countword = line_parts[1]
-            for i in range(0, int(countword)):
-                sent = f.readline()
-                sent_parts = sent.strip().split(" ")
-                for j in range(0, 300):
-                    dataset_x[countlen][i * 300 + j] = sent_parts[j]
+            for i in range(0, 60):
+                wordindex = line_parts[i+1]
+                dataset_x[countlen][i] = wordindex
 
         shared_x = theano.shared(np.asarray(dataset_x, dtype=theano.config.floatX), borrow=True)
         shared_y = theano.shared(np.asarray(dataset_y, dtype=theano.config.floatX), borrow=True)
-        # print(shared_y.get_value())
-        return shared_x, T.cast(shared_y, 'int32')
+        return T.cast(shared_x, 'int32'), T.cast(shared_y, 'int32')
 
     def init_data(self):
         rng = np.random.RandomState(23455)
@@ -52,19 +47,19 @@ class treatment(object):
         validpath = "D:/theano/SentimentAnalysis/validation_new.txt"
         testpath = "D:/theano/SentimentAnalysis/test_new.txt"
 
+        self.sentences_test_x, self.sentences_test_y = self.load_data(testpath, datasize[2])
         self.sentences_train_x, self.sentences_train_y = self.load_data(trainpath, datasize[0])
         self.sentences_valid_x, self.sentences_valid_y = self.load_data(validpath, datasize[1])
-        self.sentences_test_x, self.sentences_test_y = self.load_data(testpath, datasize[2])
 
-        n_train_batches = self.sentences_train_x.get_value(borrow=True).shape[0]
-        n_valid_batches = self.sentences_valid_x.get_value(borrow=True).shape[0]
-        n_test_batches = self.sentences_test_x.get_value(borrow=True).shape[0]
+        n_train_batches = 8500 # n_valid_batches = self.sentences_valid_x.get_value(borrow=True).shape[0]
+        n_valid_batches = 2200
+        n_test_batches = 1100
         n_train_batches /= self.batch_size
         n_valid_batches /= self.batch_size
         n_test_batches /= self.batch_size
 
-        self.index = T.lscalar()
-        self.x = T.matrix('x')
+        self.index = T.iscalar()
+        self.x = T.imatrix('x')
         self.y = T.ivector('y')
         self.learning_rate = T.scalar("learning_rate")
         self.momentum = T.scalar("momentum")

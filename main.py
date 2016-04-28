@@ -9,29 +9,31 @@ from creat import *
 rng = numpy.random.RandomState(23456)
 srng = MRG_RandomStreams(567432)
 batch_size = 100
-learning_rate = 0.01
-momentum = 0.9
+learning_rate = 0.1
+momentum = 0.0
 
-Treat = treatment(batch_size, learning_rate)
+Treat = treatment(batch_size)
 n_train_batches, n_valid_batches, n_test_batches = Treat.init_data()
 
 classifier = Network(rng=rng, srng=srng, batch_size=batch_size,
                      architecture=(
-                         ("data", (1, 60, 300)),
+                         ("data", (60, 1)),
+                         ("reshape", (60,)),
+                         ("bow", (60, 300)),
                          ("reshape", (1, 60, 300)),
                          # ("conv", (300, 3, 300), 0.7, 1),
                          # ("pool", (58, 1), (1, 1), "max"),
-                         ("bigcp", (400, 3, 300), (400, 4, 300), (400, 5, 300), (58, 1), (57, 1), (56, 1), 0.7, 1),
-                         ("reshape", (1200,)),
-                         ("fc", (800,), 0.5, 1, "relu"),
-                         ("softmax", (5,)),
+                         ("bigcp", (250, 3, 300), (250, 4, 300), (250, 5, 300), (58, 1), (57, 1), (56, 1), 1, 1),
+                         ("reshape", (750,)),
+                         ("fc", (750,), 0.5, 1, "relu"),
+                         ("softmax", (5,), 0.5),
                          ("branchout", "empty")
                      ))
 
 print '... training'
-patience = 42500
+patience = 85000
 patience_increase = 2
-improvement_threshold = 0.995
+improvement_threshold = 0.996
 n_epochs = 1000
 
 validation_frequency = n_train_batches  # min(n_train_batches, patience / 2)
@@ -49,9 +51,9 @@ while (epoch < n_epochs) and (not done_looping):
     this_batch_start = time.clock()
     epoch += 1
 
-    if epoch < 80:
+    if 0 <= epoch < 45:
         learning_rate = 0.1
-    elif 80 <= epoch < 500:
+    elif 45 <= epoch < 450:
         learning_rate = 0.01
     else:
         learning_rate = 0.001
@@ -74,14 +76,17 @@ while (epoch < n_epochs) and (not done_looping):
 
                 if this_validation_loss < best_validation_loss * improvement_threshold:
                     patience = max(patience, iteration * patience_increase)
-                    print (('patience now %f,') % (patience))
+                    print (('patience now %i,') % (patience))
                 best_validation_loss = this_validation_loss
                 best_iteration = iteration
+                print "get new minimize!"
                 test_losses = [test_model(i) for i in xrange(n_test_batches)]
                 test_score = numpy.mean(test_losses)
+                # test_losses = [test_model(i) for i in xrange(n_test_batches)]
+                # test_score = numpy.mean(test_losses)
                 print(('     epoch %i, minibatch %i/%i, test error of '
-                       'best model %f %%') %
-                      (epoch, minibatch_index + 1, n_train_batches, test_score * 100.))
+                          'best model %f %%') %
+                     (epoch, minibatch_index + 1, n_train_batches, test_score * 100.))
 
         if patience <= iteration:
             done_looping = True

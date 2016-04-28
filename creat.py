@@ -23,13 +23,15 @@ def layer_define(rng, batch_size, architecture):
         elif layer[0] == 'reshape':
             shape_data = (batch_size,) + layer[1]
             continue
+        elif layer[0] == 'bow':
+            shape_trans = layer[1]
+            layer_list.append(GetBoW(shape_data, shape_trans, "D:/theano/SentimentAnalysis/dic_vec.pkl"))
+            shape_data = (batch_size,) + shape_trans
         elif layer[0] == 'conv':
             shape_trans = layer[1]
             p_drop = layer[2]
             repeat = layer[3]
             for i in range(repeat):
-                # type(shape_data)
-                # print (shape_trans[:1]+(shape_data[1],)+shape_trans[1:])
                 layer_list.append(
                     ConvolutionLayer(rng, shape_data, shape_trans[:1]+(shape_data[1],)+shape_trans[1:], p_drop,
                                      activation=T.nnet.relu)
@@ -83,8 +85,9 @@ def layer_define(rng, batch_size, architecture):
             continue
         elif layer[0] == 'softmax':
             shape_trans = layer[1]
+            p_drop = layer[2]
             layer_list.append(
-                SoftmaxLayer(shape_data, shape_data[1], shape_trans[0])
+                SoftmaxLayer(shape_data, shape_data[1], shape_trans[0], p_drop)
             )
             shape_data = (shape_data[0], shape_trans[0])
             continue
@@ -119,10 +122,6 @@ def layer_operate(inputs, memories, architecture, layers, batch_size, masks, mod
     layer_pointer = 0
     for layer in architecture:
         if layer[0] == 'data':
-            # print "''''''''''''''''''''"
-            # print type(inputs)
-            # print len(inputs)
-            # print inputs
             data = inputs[-1]
             continue
         elif layer[0] == 'branchin':
@@ -133,6 +132,9 @@ def layer_operate(inputs, memories, architecture, layers, batch_size, masks, mod
             shape = layer[1]
             data = data.reshape((batch_size,)+shape)
             continue
+        elif layer[0] == 'bow':
+            data = layers[layer_pointer].output(input=data)
+            layer_pointer += 1
         elif layer[0] == 'conv':
             repeat = layer[3]
             for i in range(repeat):

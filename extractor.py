@@ -32,16 +32,25 @@ def extractor():
                 sentence = line_parts[1]
                 for fix in dataset_fixes:
                     sentence = sentence.replace(fix, dataset_fixes[fix])
+                sentence = sentence.replace("-", " ")
+                sentence = sentence.replace("\/", " ")
+                sentence = sentence.replace("...", " ")
                 sentences1.append(sentence)
             if int(dataset_split[line_parts[0]]) == 2:
                 sentence = line_parts[1]
                 for fix in dataset_fixes:
                     sentence = sentence.replace(fix, dataset_fixes[fix])
+                sentence = sentence.replace("-", " ")
+                sentence = sentence.replace("\/", " ")
+                sentence = sentence.replace("...", " ")
                 sentences2.append(sentence)
             if int(dataset_split[line_parts[0]]) == 3:
                 sentence = line_parts[1]
                 for fix in dataset_fixes:
                     sentence = sentence.replace(fix, dataset_fixes[fix])
+                sentence = sentence.replace("-", " ")
+                sentence = sentence.replace("\/", " ")
+                sentence = sentence.replace("...", " ")
                 sentences3.append(sentence)
 
 
@@ -62,7 +71,10 @@ def extractor():
             line_parts = line.strip().split("|")
             if len(line_parts) != 2:
                 raise ValueError("Unexpected file format")
-            phrases[line_parts[0]] = sentiment_labels[line_parts[1]]
+            line_s = line_parts[0].replace("-", " ")
+            line_s = line_s.replace("\/", " ")
+            line_s = line_s.replace("...", " ")
+            phrases[line_s] = sentiment_labels[line_parts[1]]
 
     # print the labels and sentences/phrases
     if sentence_type == full:

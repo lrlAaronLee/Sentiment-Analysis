@@ -2,9 +2,27 @@ import numpy
 import theano
 import theano.tensor as T
 import theano.tensor.nnet
+import cPickle
 
 from theano.tensor.nnet import conv
 from theano.tensor.signal import downsample
+
+
+class GetBoW(object):
+    def __init__(self, shape_in, shape_trans, dic_vec):
+        f = open(dic_vec)
+        bow = cPickle.load(f)
+        f.close()
+        self.W = theano.shared(numpy.asarray(bow, dtype=theano.config.floatX), borrow=True)
+        self.shape_in = shape_in
+        self.shape_trans = shape_trans
+        self.drop = 1.
+        self.params = [self.W]
+        self.paramsl2 = []
+
+    def output(self, input, mask=None):
+        output = self.W[input]
+        return output
 
 
 class ConvolutionLayer(object):
@@ -197,7 +215,12 @@ class SoftmaxLayer(object):
         self.paramsl2 = [self.W]
 
     def output(self, input, mask=None):
-        p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
+        if mask is None:
+            drop_in = input * self.drop
+        else:
+            drop_in = input * mask
+
+        p_y_given_x = T.nnet.softmax(T.dot(drop_in, self.W) + self.b)
         return p_y_given_x
 
 

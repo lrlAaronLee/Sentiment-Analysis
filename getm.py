@@ -1,3 +1,7 @@
+import cPickle
+import numpy
+import theano
+
 if __name__ == '__main__':
     newtrain = open("train_new.txt", "w")
     newtest = open("test_new.txt", "w")
@@ -12,15 +16,55 @@ if __name__ == '__main__':
     totallined = 0
     dic_word = []
     dic_vec = []
+    ha_word = []
 
-    with open("D:/theano/SentimentAnalysis/glove.6B.300d.txt", "r") as dic:
-        # model modify
+    with open("D:/theano/SentimentAnalysis/train.txt", "r") as f1:
+        for line in f1:
+            line_parts = line.strip().split("\t")
+            value = line_parts[0]
+            sent = line_parts[1]
+            sent_parts = sent.strip().split(" ")
+            for word in sent_parts:
+                ha_word.append(word.lower())
+
+    with open("D:/theano/SentimentAnalysis/validation.txt", "r") as f1:
+        for line in f1:
+            line_parts = line.strip().split("\t")
+            value = line_parts[0]
+            sent = line_parts[1]
+            sent_parts = sent.strip().split(" ")
+            for word in sent_parts:
+                ha_word.append(word.lower())
+
+    with open("D:/theano/SentimentAnalysis/test.txt", "r") as f1:
+        for line in f1:
+            line_parts = line.strip().split("\t")
+            value = line_parts[0]
+            sent = line_parts[1]
+            sent_parts = sent.strip().split(" ")
+            for word in sent_parts:
+                ha_word.append(word.lower())
+
+    ha_word = list(set(ha_word))
+    word_len = len(ha_word)
+
+    with open("D:/theano/SentimentAnalysis/glove.840B.300d.txt", "r") as dic:
         for lined in dic:
             totallined += 1
-            print totallined
+            if totallined % 10000 == 0:
+                print totallined
             dic_parts = lined.strip().split(" ")
-            dic_word.append(dic_parts[0])
-            dic_vec.append(dic_parts[1:301])
+            if dic_parts[0] in ha_word:
+                dic_word.append(dic_parts[0])
+                dic_vec.append(dic_parts[1:301])
+    nu = []
+    for i in range(0, 300):
+        nu.append(0)
+    dic_vec.append(nu[0:300])
+    len_vec = len(dic_vec)
+    dic_vecn = numpy.asarray(dic_vec, dtype=theano.config.floatX)
+
+    cPickle.dump(dic_vecn, open("dic_vec.pkl", "wb"))
 
     with open("D:/theano/SentimentAnalysis/train.txt", "r") as f1:
         for line in f1:
@@ -30,25 +74,26 @@ if __name__ == '__main__':
             value = line_parts[0]
             sent = line_parts[1]
             sent_parts = sent.strip().split(" ")
-            countword = len(sent_parts)
-            newtrain.write(str(value) + "\t" + str(countword) + "\n")
+            newtrain.write(str(value))
+            countword = 0
             for word in sent_parts:
                 totalword += 1
                 wordl = word.lower()
-                if wordl in dic_word:
+                if wordl == " ":
+                    continue
+                elif wordl in dic_word:
+                    countword += 1
                     ptr = dic_word.index(wordl)
-                    newtrain.write(dic_vec[ptr][0])
-                    for i in range(1, 300):
-                        newtrain.write(" " + str(dic_vec[ptr][i]))
-                    newtrain.write("\n")
+                    newtrain.write(" " + str(ptr))
                 else:
+                    countword += 1
                     missword1 += 1
                     print "......" + str(missword1)
                     print "......" + str(word)
-                    newtrain.write(str(0))
-                    for i in range(1, 300):
-                        newtrain.write(" " + str(0))
-                    newtrain.write("\n")
+                    newtrain.write(" " + str(len_vec-1))
+            for i in range(countword, 60):
+                newtrain.write(" " + str(len_vec-1))
+            newtrain.write("\n")
 
     with open("D:/theano/SentimentAnalysis/validation.txt", "r") as f2:
         for line in f2:
@@ -58,25 +103,26 @@ if __name__ == '__main__':
             value = line_parts[0]
             sent = line_parts[1]
             sent_parts = sent.strip().split(" ")
-            countword = len(sent_parts)
-            newvali.write(str(value) + "\t" + str(countword) + "\n")
+            countword = 0
+            newvali.write(str(value))
             for word in sent_parts:
                 totalword += 1
                 wordl = word.lower()
-                if wordl in dic_word:
+                if wordl == " ":
+                    continue
+                elif wordl in dic_word:
+                    countword += 1
                     ptr = dic_word.index(wordl)
-                    newvali.write(dic_vec[ptr][0])
-                    for i in range(1, 300):
-                        newvali.write(" " + str(dic_vec[ptr][i]))
-                    newvali.write("\n")
+                    newvali.write(" " + str(ptr))
                 else:
+                    countword += 1
                     missword2 += 1
                     print "......" + str(missword2)
                     print "......" + str(word)
-                    newvali.write(str(0))
-                    for i in range(1, 300):
-                        newvali.write(" " + str(0))
-                    newvali.write("\n")
+                    newvali.write(" " + str(len_vec-1))
+            for i in range(countword, 60):
+                newvali.write(" " + str(len_vec-1))
+            newvali.write("\n")
 
     with open("D:/theano/SentimentAnalysis/test.txt", "r") as f3:
         for line in f3:
@@ -86,24 +132,31 @@ if __name__ == '__main__':
             value = line_parts[0]
             sent = line_parts[1]
             sent_parts = sent.strip().split(" ")
-            countword = len(sent_parts)
-            newtest.write(str(value) + "\t" + str(countword) + "\n")
+            countword = 0
+            newtest.write(str(value))
             for word in sent_parts:
                 totalword += 1
                 wordl = word.lower()
-                if wordl in dic_word:
+                if wordl == " ":
+                    continue
+                elif wordl in dic_word:
+                    countword += 1
                     ptr = dic_word.index(wordl)
-                    newtest.write(dic_vec[ptr][0])
-                    for i in range(1, 300):
-                        newtest.write(" " + str(dic_vec[ptr][i]))
-                    newtest.write("\n")
+                    newtest.write(" " + str(ptr))
                 else:
+                    countword += 1
                     missword3 += 1
                     print "......" + str(missword3)
                     print "......" + str(word)
-                    newtest.write(str(0))
-                    for i in range(1, 300):
-                        newtest.write(" " + str(0))
-                    newtest.write("\n")
+                    newtest.write(" " + str(len_vec-1))
+            for i in range(countword, 60):
+                newtest.write(" " + str(len_vec-1))
+            newtest.write("\n")
+
+    print missword1
+    print missword2
+    print missword3
+    print totalword
+
 
 
